@@ -52,7 +52,7 @@ Examples:
   sdocker -DR -n {name} -v {version}
     Use default values
     Run docker image
-  sdocker -GBRP -w W:\kesg-git -n {name} -v {version} -r 127.0.0.1:18579 -f docker-compose.yaml -c 65001
+  sdocker -GBRP -w W:\seung-git -n {name} -v {version} -r 127.0.0.1:18579 -f docker-compose.yaml -c 65001
     Command all options
 ```
 
@@ -115,11 +115,21 @@ Edit Files
   - User
   - Path
   - Command
+  - Etc
+- Compose
+  - Remote Registry Endpoint
+  - Project Name
+  - Version
+  - Timezone
+  - Database Information
+  - Command
+  - Etc
 - sdocker
   - Default Workspace Path
   - Default Remote Registry Endpoint
   - Default Compose Yaml File Path
   - Charset
+  - Etc
 
 ## Self Signed Certification
 

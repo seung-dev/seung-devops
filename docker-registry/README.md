@@ -40,8 +40,6 @@ for /f %a in ('docker ps -aqf "name=docker-registry"') do (docker container exec
 
 ### Installation
 
-[Docker Hub](https://hub.docker.com/_/registry)
-
 ```cmd
 copy docker-compose.yaml.registry docker-compose.yaml
 ```
@@ -53,3 +51,7 @@ notepad docker-compose.yaml
 ```cmd
 docker compose -f docker-compose.yaml up -d
 ```
+
+### Docker Hub
+
+[registry](https://hub.docker.com/_/registry)
