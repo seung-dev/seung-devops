@@ -108,6 +108,19 @@ Add Files to the Project
 
 [goto templates](https://github.com/seung-dev/seung-devops/tree/main/sdocker/spring)
 
+Edit Files
+
+- Dockerfile
+  - Base Image
+  - User
+  - Path
+  - Command
+- sdocker
+  - Default Workspace Path
+  - Default Remote Registry Endpoint
+  - Default Compose Yaml File Path
+  - Charset
+
 ## Self Signed Certification
 
 Generate Certification
