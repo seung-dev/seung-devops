@@ -1,0 +1,19 @@
+volumes:
+  docker-registry:
+    name: docker-registry
+    external: false
+
+services:
+  docker-registry:
+    image: registry:2.8.3
+    volumes:
+      - docker-registry:/var/lib/registry
+      - /C/Users/seung/.ssl/127.0.0.1.crt:/root/.ssl/127.0.0.1.crt
+      - /C/Users/seung/.ssl/127.0.0.1.key:/root/.ssl/127.0.0.1.key
+    environment:
+      REGISTRY_STORAGE_DELETE_ENABLED: true
+      REGISTRY_HTTP_TLS_CERTIFICATE: /root/.ssl/127.0.0.1.crt
+      REGISTRY_HTTP_TLS_KEY: /root/.ssl/127.0.0.1.key
+    ports:
+      - "18579:5000"
+    restart: always
