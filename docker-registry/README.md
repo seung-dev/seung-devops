@@ -5,31 +5,31 @@
 catalog
 
 ```cmd
-curl -k https://192.168.100.199:18579/v2/_catalog
+curl -k https://127.0.0.1:18579/v2/_catalog
 ```
 
 tags
 
 ```cmd
-curl -k https://192.168.100.199:18579/v2/{name}/tags/list
+curl -k https://127.0.0.1:18579/v2/{name}/tags/list
 ```
 
 manifests
 
 ```cmd
-curl -k https://192.168.100.199:18579/v2/{name}/manifests/{version}
+curl -k https://127.0.0.1:18579/v2/{name}/manifests/{version}
 ```
 
 digest
 
 ```cmd
-curl -k -sS -o nul -w "%header{Docker-Content-Digest}" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" https://192.168.100.199:18579/v2/{name}/manifests/{version}
+curl -k -sS -o nul -w "%header{Docker-Content-Digest}" -H "Accept: application/vnd.docker.distribution.manifest.v2+json" https://127.0.0.1:18579/v2/{name}/manifests/{version}
 ```
 
 delete
 
 ```cmd
-curl -k -X DELETE https://192.168.100.199:18579/v2/{name}/manifests/{digest}
+curl -k -X DELETE https://127.0.0.1:18579/v2/{name}/manifests/{digest}
 ```
 
 vacuum
