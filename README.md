@@ -2,7 +2,17 @@
 
 ## sdocker
 
-Clean & Build Gradle + Clean & Build Docker Image + Run Docker Container + Push Docker Image
+- Build
+  - Gradle
+  - NPM
+- Docker
+  - Compose
+    - Build
+    - Up
+  - Push
+  - Pull
+- Kubernetes
+  - Apply
 
 ### Usage
 
@@ -16,62 +26,119 @@ Options
 
 ```
 Usage: sdocker [options...]
-  -h  Get help for commands
-  -w  Workspace Path (DEFAULT: W:\seung-git)
-  -n  Application Name
-  -v  Application Version
-  -r  Remote Registry Endpoint (DEFAULT: 127.0.0.1:18579)
-  -f  Docker compose file (DEFAULT: docker-compose.yaml)
-  -c  Active code page (DEFAULT: 65001)
-      65001 utf-8
-      51949 euc-kr
-      28591 iso-8859-1
-      For more code, head to https://learn.microsoft.com/en-us/windows/win32/intl/code-page-identifiers
-  -D  Use Default Values
-  -G  Clean and Build Gradle
-  -B  Build Docker Image
-  -R  Run Docker Image
-  -P  Push Docker Image
+  -h              Get help for commands
+  -i              Choose or Input Field Values
+  -an [name]      Application Name
+  -av [version]   Application Version
+  -ab [tool]      Application Build
+                  Tools:
+                    gradle
+                    npm
+  -ap [path]      Application Path (DEFAULT: W:\kesg-git\[Application Name])
+  -do [endpoint]  Origin Registry Endpoint (DEFAULT: 192.168.100.199:18579)
+  -dt [endpoint]  Target Registry Endpoint (DEFAULT: 192.168.100.199:18579)
+  -dc [file]      Docker Compose File (DEFAULT: docker-compose.yaml)
+  -np [name]      NCloud Public Conatiner Registry Name
+                  End Point Suffix (DEFAULT: [Public Registry Name].ncr.ntruss.com)
+  -ns [name]      NCloud Private Conatiner Registry Name
+                  End Point Suffix (DEFAULT: [Private Registry Name].private-ncr.ntruss.com)
+  -kn [name]      Kubernetes Cluster Name
+  -kc [file]      Kubernetes Cluster Config File
+  -ka [file]      Kubernetes Apply File
+  -wc [code]      Windows Active code page (DEFAULT: )
+                  Codes:
+                    65001 utf-8
+                    51949 euc-kr
+                    28591 iso-8859-1
+                    For more code, head to https://learn.microsoft.com/en-us/windows/win32/intl/code-page-identifiers
+  -B              Build
+                  Compatible Options:
+                     -BD
+                     -BDU
+                     -BDP
+                  Required Fields:
+                    -an [Application Name]
+                    -av [Application Version]
+                    -ab [Application Build]
+                    -ap [Application Path]
+  -D              Compose Build Docker Image
+                  Compatible Options:
+                     -BD
+                     -BDU
+                     -BDP
+                  Required Fields:
+                    -an [Application Name]
+                    -av [Application Version]
+                    -ap [Application Path]
+                    -dt [Target Registry Endpoint]
+                    -dc [Docker Compose File]
+  -U              Compose Up Docker Image
+                  Compatible Options:
+                     -BDU
+                  Required Fields:
+                    -an [Application Name]
+                    -av [Application Version]
+                    -ap [Application Path]
+                    -dt [Target Registry Endpoint]
+                    -dc [Docker Compose File]
+  -P              Push Docker Image
+                  Compatible Options:
+                     -BDP
+                  Required Fields:
+                    -an [Application Name]
+                    -av [Application Version]
+                    -dt [Target Registry Endpoint]
+  -L              Pull Docker Image
+                  Compatible Options:
+                     -LU
+                  Required Fields:
+                    -an [Application Name]
+                    -av [Application Version]
+                    -do [Origin Registry Endpoint]
+                    -dt [Target Registry Endpoint]
+  -S              Synchronize Docker Image
+                  Compatible Options:
+                     -SA
+                  Required Fields:
+                    -an [Application Name]
+                    -av [Application Version]
+                    -do [Origin Registry Endpoint]
+                    -np [NCloud Public Conatiner Registry Name]
+  -A              Apply Container
+                  Compatible Options:
+                     -SA
+                  Required Fields:
+                    -an [Application Name]
+                    -av [Application Version]
+                    -ns [NCloud Private Conatiner Registry Name]
+                    -kn [Kubernetes Cluster Name]
+                    -kc [Kubernetes Cluster Config File]
+                    -ka [Kubernetes Apply File]
 
 Examples:
-  sdocker -DGBRP -n {name} -v {version}
-    Use default values
-    Build gradle
-    Build docker image
-    Run docker image
-    Push docker image
-  sdocker -DGBRP
-    Input values
-    Build gradle
-    Build docker image
-    Run docker image
-    Push docker image
-  sdocker -DG -n {name} -v {version}
-    Use default values
-    Build gradle
-  sdocker -DR -n {name} -v {version}
-    Use default values
-    Run docker image
-  sdocker -GBRP -w W:\seung-git -n {name} -v {version} -r 127.0.0.1:18579 -f docker-compose.yaml -c 65001
-    Command all options
-```
-
-Build
-
-```cmd
-sdocker -DGB -n {name} -v {version}
-```
-
-Run
-
-```cmd
-sdocker -DR -n {name} -v {version}
-```
-
-Push
-
-```cmd
-sdocker -DP -n {name} -v {version}
+  -GBU: sdocker -BDU ^
+        -an app-name ^
+        -av 1.0.0 ^
+        -ab gradle ^
+        -ap W:\kesg-git\app-name ^
+        -dt 192.168.100.199:18579 ^
+        -dc docker-compose.yaml
+  -GBP: sdocker -GBP ^
+        -an app-name ^
+        -av 1.0.0 ^
+        -ab gradle ^
+        -ap W:\kesg-git\app-name ^
+        -dt 192.168.100.199:18579 ^
+        -dc docker-compose.yaml
+  -SA: sdocker -SA ^
+        -an app-name ^
+        -av 1.0.0 ^
+        -do 192.168.100.199:18579 ^
+        -np ncr-public-name.ncr.ntruss.com ^
+        -ns ncr-private-name.private-ncr.ntruss.com ^
+        -kn cluster-name ^
+        -kc W:\kesg-git\cluster-name\kubeconfig.yaml ^
+        -ka W:\kesg-git\cluster-name\app-name\apply.yaml
 ```
 
 ### Configuration
@@ -125,11 +192,7 @@ Edit Files
   - Command
   - Etc
 - sdocker
-  - Default Workspace Path
-  - Default Remote Registry Endpoint
-  - Default Compose Yaml File Path
-  - Charset
-  - Etc
+  - Default Variables
 
 ## Self Signed Certification
 
