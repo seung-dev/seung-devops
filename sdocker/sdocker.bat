@@ -19,7 +19,7 @@ set "DEFAULT_TARGET_REGISTRY=127.0.0.1:18579"
 set "DEFAULT_NCR_PUBLIC_SUFFIX=ncr.ntruss.com"
 set "DEFAULT_NCR_PRIVATE_SUFFIX=private-ncr.ntruss.com"
 set "DEFAULT_KUBE_CONFIG=kubeconfig.yaml"
-set "DEFAULT_KUBE_APPLY=apply.yaml"
+set "DEFAULT_KUBE_APPLY=kubeapply.yaml"
 set "DEFAULT_CHARSET=65001"
 
 ::Options
@@ -223,9 +223,10 @@ if "%~1"=="" (
         if !SUMM! gtr 0 goto invalid
     )
     goto init
-    :invalid
-        echo sdocker: options are invalid
-        goto try
+
+:invalid
+    echo sdocker: options are invalid
+    goto try
 
 :init
     if ""=="!CHARSET!" (
@@ -396,7 +397,7 @@ if "%~1"=="" (
     :input_cluster_name
         if not ""=="!CLUTER_NAME!" (
             echo - Cluster Name []: !CLUTER_NAME!
-            goto input_kube_config
+            goto input_cluster_path
         )
         set /p CLUTER_NAME="- Cluster Name []: "
         if ""=="!CLUTER_NAME!" (
@@ -448,12 +449,12 @@ if "%~1"=="" (
     :input_kube_apply
         if not ""=="!KUBE_APPLY!" (
             echo - Cluster Apply File [%DEFAULT_KUBE_APPLY%]: !KUBE_APPLY!
-            goto input_kube_apply
+            goto begin
         )
         if not "1"=="!OPTION_INPUT!" (
             set "KUBE_APPLY=%DEFAULT_KUBE_APPLY%"
             echo - Cluster Apply File [%DEFAULT_KUBE_APPLY%]: !KUBE_APPLY!
-            goto input_kube_apply
+            goto begin
         )
         set /p KUBE_APPLY="- Cluster Apply File [%DEFAULT_KUBE_APPLY%]: "
         if ""=="!KUBE_APPLY!" (
@@ -467,8 +468,10 @@ if "%~1"=="" (
     if %BEGIN_AT_MS% lss 100000 set "BEGIN_AT_MS=%BEGIN_AT_MS%0"
 
 :env
-    if not ""=="!ORIGIN_REGISTRY!" set "ORIGIN_IMAGE=!ORIGIN_REGISTRY!/!APP_NAME!:!APP_VERSION!"
-    if not ""=="!TARGET_REGISTRY!" set "TARGET_IMAGE=!TARGET_REGISTRY!/!APP_NAME!:!APP_VERSION!"
+    set "ORIGIN_IMAGE=!ORIGIN_REGISTRY!/!APP_NAME!:!APP_VERSION!"
+    if ""=="!ORIGIN_REGISTRY!" set "ORIGIN_IMAGE=!APP_NAME!:!APP_VERSION!"
+    set "TARGET_IMAGE=!TARGET_REGISTRY!/!APP_NAME!:!APP_VERSION!"
+    if ""=="!TARGET_REGISTRY!" set "TARGET_IMAGE=!APP_NAME!:!APP_VERSION!"
     if not ""=="!NCR_PUBLIC_NAME!" set "NCR_PUBLIC=!NCR_PUBLIC_NAME!.%DEFAULT_NCR_PUBLIC_SUFFIX%"
     if not ""=="!NCR_PUBLIC!" set "NCR_PUBLIC_IMAGE=!NCR_PUBLIC!/!APP_NAME!:!APP_VERSION!"
     if not ""=="!NCR_PRIVATE_NAME!" set "NCR_PRIVATE=!NCR_PRIVATE_NAME!.%DEFAULT_NCR_PRIVATE_SUFFIX%"

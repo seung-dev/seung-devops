@@ -138,7 +138,7 @@ Examples:
         -ns ncr-private-name.private-ncr.ntruss.com ^
         -kn cluster-name ^
         -kc W:\kesg-git\cluster-name\kubeconfig.yaml ^
-        -ka W:\kesg-git\cluster-name\app-name\apply.yaml
+        -ka W:\kesg-git\cluster-name\app-name\kubeapply.yaml
 ```
 
 ### Configuration
