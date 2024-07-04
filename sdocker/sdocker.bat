@@ -465,7 +465,7 @@ if "%~1"=="" (
 
 :begin
     for /f "tokens=1,2 delims=.," %%a in ('powershell Get-Date -UFormat %%s') do (set "BEGIN_AT_SS=%%a" & set "BEGIN_AT_MS=1%%b")
-    if %BEGIN_AT_MS% lss 100000 set "BEGIN_AT_MS=%BEGIN_AT_MS%0"
+    if !BEGIN_AT_MS! lss 100000 set "BEGIN_AT_MS=!BEGIN_AT_MS!0"
 
 :env
     set "ORIGIN_IMAGE=!ORIGIN_REGISTRY!/!APP_NAME!:!APP_VERSION!"
@@ -598,21 +598,21 @@ if "%~1"=="" (
 
 :done
     for /f "tokens=1,2 delims=.," %%a in ('powershell Get-Date -UFormat %%s') do set "END_AT_SS=%%a" & set "END_AT_MS=1%%b"
-    if %END_AT_MS% lss 100000 set "END_AT_MS=%END_AT_MS%0"
-    if %BEGIN_AT_MS% gtr %END_AT_MS% set /a "END_AT_MS=%END_AT_MS%+100000" & set /a "END_AT_SS=%END_AT_SS%-1"
-    set /a "ELAPSED_SS=%END_AT_SS%-%BEGIN_AT_SS%"
-    set /a "DIFF_HH=%ELAPSED_SS%/3600"
-    if %DIFF_HH% lss 10 set "DIFF_HH=0%DIFF_HH%"
-    set /a "DIFF_MM=(%ELAPSED_SS%%%3600)/60"
-    if %DIFF_MM% lss 10 set "DIFF_MM=0%DIFF_MM%"
-    set /a "DIFF_SS=%ELAPSED_SS%%%60"
-    if %DIFF_SS% lss 10 set "DIFF_SS=0%DIFF_SS%"
-    set /a "DIFF_MS=%END_AT_MS%-%BEGIN_AT_MS%"
-    if ""=="%EXIT_CODE%" set "EXIT_CODE=%ERRORLEVEL%"
-    if 0==%EXIT_CODE% (
-        call :info "%GREEN%Success%NOCOLOR% in %YELLOW%%DIFF_HH%:%DIFF_MM%:%DIFF_SS%.%DIFF_MS:~0,3%%NOCOLOR%"
+    if !END_AT_MS! lss 100000 set "END_AT_MS=!END_AT_MS!0"
+    if !BEGIN_AT_MS! gtr !END_AT_MS! set /a "END_AT_MS=!END_AT_MS!+100000" & set /a "END_AT_SS=!END_AT_SS!-1"
+    set /a "ELAPSED_SS=!END_AT_SS!-!BEGIN_AT_SS!"
+    set /a "DIFF_HH=!ELAPSED_SS!/3600"
+    if !DIFF_HH! lss 10 set "DIFF_HH=0!DIFF_HH!"
+    set /a "DIFF_MM=(!ELAPSED_SS!%%3600)/60"
+    if !DIFF_MM! lss 10 set "DIFF_MM=0!DIFF_MM!"
+    set /a "DIFF_SS=!ELAPSED_SS!%%60"
+    if !DIFF_SS! lss 10 set "DIFF_SS=0!DIFF_SS!"
+    set /a "DIFF_MS=!END_AT_MS!-!BEGIN_AT_MS!"
+    if ""=="!EXIT_CODE!" set "EXIT_CODE=!ERRORLEVEL!"
+    if 0==!EXIT_CODE! (
+        call :info "%GREEN%Success%NOCOLOR% in %YELLOW%!DIFF_HH!:!DIFF_MM!:!DIFF_SS!.!DIFF_MS:~0,3!%NOCOLOR%"
     ) else (
-        call :error "%RED%Fail%NOCOLOR% in %YELLOW%%DIFF_HH%:%DIFF_MM%:%DIFF_SS%.%DIFF_MS:~0,3%%NOCOLOR%"
+        call :error "%RED%Fail%NOCOLOR% in %YELLOW%!DIFF_HH!:!DIFF_MM!:!DIFF_SS!.!DIFF_MS:~0,3!%NOCOLOR%"
     )
 
 goto end
@@ -778,4 +778,4 @@ goto end
 
 :end
     endlocal
-    exit /b %EXIT_CODE%
+    exit /b !EXIT_CODE!
