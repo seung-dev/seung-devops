@@ -14,8 +14,8 @@ setlocal enabledelayedexpansion
 ::Defaults
 set "DEFAULT_ROOT=W:\seung-git"
 set "DEFAULT_DOCKER_COMPOSE=docker-compose.yaml"
-set "DEFAULT_REGISTRY_ORIGIN=docker.io"
-set "DEFAULT_REGISTRY_TARGET=127.0.0.1:18579"
+set "DEFAULT_ORIGIN_REGISTRY=docker.io"
+set "DEFAULT_TARGET_REGISTRY=127.0.0.1:18579"
 set "DEFAULT_NCR_PUBLIC=public.kr.ncr.ntruss.com"
 set "DEFAULT_NCR_PRIVATE=private.kr.private-ncr.ntruss.com"
 set "DEFAULT_KUBE_CONFIG=kubeconfig.yaml"
@@ -94,7 +94,7 @@ if "%~1"=="" (
     )
     if "-do"=="!ARG1!" (
         if not "-"=="!ARG2:~0,1!" (
-            set "REGISTRY_ORIGIN=!ARG2!"
+            set "ORIGIN_REGISTRY=!ARG2!"
             shift
         )
         shift
@@ -102,7 +102,7 @@ if "%~1"=="" (
     )
     if "-dt"=="!ARG1!" (
         if not "-"=="!ARG2:~0,1!" (
-            set "REGISTRY_TARGET=!ARG2!"
+            set "TARGET_REGISTRY=!ARG2!"
             shift
         )
         shift
@@ -126,7 +126,7 @@ if "%~1"=="" (
     )
     if "-kn"=="!ARG1!" (
         if not "-"=="!ARG2:~0,1!" (
-            set "CLUTER_NAME=!ARG2!"
+            set "CLUSTER_NAME=!ARG2!"
             shift
         )
         shift
@@ -319,38 +319,38 @@ if "%~1"=="" (
     ::Origin Registry
     :input_origin
         if not "1"=="!OPTION_L!" goto input_target
-        if not ""=="!REGISTRY_ORIGIN!" (
-            echo - Origin Registry Endpoint [%DEFAULT_REGISTRY_ORIGIN%]%COLON% !REGISTRY_ORIGIN!
+        if not ""=="!ORIGIN_REGISTRY!" (
+            echo - Origin Registry Endpoint [%DEFAULT_ORIGIN_REGISTRY%]%COLON% !ORIGIN_REGISTRY!
             goto input_target
         )
         if not "1"=="!OPTION_INPUT!" (
-            set "REGISTRY_ORIGIN=%DEFAULT_REGISTRY_ORIGIN%"
-            echo - Origin Registry Endpoint [%DEFAULT_REGISTRY_ORIGIN%]%COLON% !REGISTRY_ORIGIN!
+            set "ORIGIN_REGISTRY=%DEFAULT_ORIGIN_REGISTRY%"
+            echo - Origin Registry Endpoint [%DEFAULT_ORIGIN_REGISTRY%]%COLON% !ORIGIN_REGISTRY!
             goto input_target
         )
-        set /p REGISTRY_ORIGIN="- Origin Registry Endpoint [%DEFAULT_REGISTRY_ORIGIN%]%COLON% "
-        if ""=="!REGISTRY_ORIGIN!" (
+        set /p ORIGIN_REGISTRY="- Origin Registry Endpoint [%DEFAULT_ORIGIN_REGISTRY%]%COLON% "
+        if ""=="!ORIGIN_REGISTRY!" (
             set /p CONTINUE="Continue using the default value [y/n]%COLON% "
             if /i not "y"=="!CONTINUE!" goto end
-            set "REGISTRY_ORIGIN=%DEFAULT_REGISTRY_ORIGIN%"
+            set "ORIGIN_REGISTRY=%DEFAULT_ORIGIN_REGISTRY%"
         )
     ::Target Registry
     :input_target
         if not "1"=="!OPTION_D!" if not "1"=="!OPTION_U!" if not "1"=="!OPTION_P!" goto input_ncr_public
-        if not ""=="!REGISTRY_TARGET!" (
-            echo - Target Registry Endpoint [%DEFAULT_REGISTRY_TARGET%]%COLON% !REGISTRY_TARGET!
+        if not ""=="!TARGET_REGISTRY!" (
+            echo - Target Registry Endpoint [%DEFAULT_TARGET_REGISTRY%]%COLON% !TARGET_REGISTRY!
             goto input_ncr_public
         )
         if not "1"=="!OPTION_INPUT!" (
-            set "REGISTRY_TARGET=%DEFAULT_REGISTRY_TARGET%"
-            echo - Target Registry Endpoint [%DEFAULT_REGISTRY_TARGET%]%COLON% !REGISTRY_TARGET!
+            set "TARGET_REGISTRY=%DEFAULT_TARGET_REGISTRY%"
+            echo - Target Registry Endpoint [%DEFAULT_TARGET_REGISTRY%]%COLON% !TARGET_REGISTRY!
             goto input_ncr_public
         )
-        set /p REGISTRY_TARGET="- Target Registry Endpoint [%DEFAULT_REGISTRY_TARGET%]%COLON% "
-        if ""=="!REGISTRY_TARGET!" (
+        set /p TARGET_REGISTRY="- Target Registry Endpoint [%DEFAULT_TARGET_REGISTRY%]%COLON% "
+        if ""=="!TARGET_REGISTRY!" (
             set /p CONTINUE="Continue using the default value [y/n]%COLON% "
             if /i not "y"=="!CONTINUE!" goto end
-            set "REGISTRY_TARGET=%DEFAULT_REGISTRY_TARGET%"
+            set "TARGET_REGISTRY=%DEFAULT_TARGET_REGISTRY%"
         )
     ::NCR Public
     :input_ncr_public
@@ -395,33 +395,33 @@ if "%~1"=="" (
     echo Kubernetes
     ::Cluster
     :input_cluster_name
-        if not ""=="!CLUTER_NAME!" (
-            echo - Cluster Name []%COLON% !CLUTER_NAME!
+        if not ""=="!CLUSTER_NAME!" (
+            echo - Cluster Name []%COLON% !CLUSTER_NAME!
             goto input_cluster_path
         )
-        set /p CLUTER_NAME="- Cluster Name []%COLON% "
-        if ""=="!CLUTER_NAME!" goto required
+        set /p CLUSTER_NAME="- Cluster Name []%COLON% "
+        if ""=="!CLUSTER_NAME!" goto required
     :input_cluster_path
-        if not ""=="!CLUTER_PATH!" (
-            echo - Cluster Path [%DEFAULT_ROOT%\!CLUTER_NAME!]%COLON% !CLUTER_PATH!
+        if not ""=="!CLUSTER_PATH!" (
+            echo - Cluster Path [%DEFAULT_ROOT%\!CLUSTER_NAME!]%COLON% !CLUSTER_PATH!
             goto move_cluster_path
         )
         if not "1"=="!OPTION_INPUT!" (
-            set "CLUTER_PATH=%DEFAULT_ROOT%\!CLUTER_NAME!"
-            echo - Cluster Path [%DEFAULT_ROOT%\!CLUTER_NAME!]%COLON% !CLUTER_PATH!
+            set "CLUSTER_PATH=%DEFAULT_ROOT%\!CLUSTER_NAME!"
+            echo - Cluster Path [%DEFAULT_ROOT%\!CLUSTER_NAME!]%COLON% !CLUSTER_PATH!
             goto move_cluster_path
         )
-        set /p CLUTER_PATH="- Cluster Path [%DEFAULT_ROOT%\!CLUTER_NAME!]%COLON% "
-        if ""=="!CLUTER_PATH!" (
+        set /p CLUSTER_PATH="- Cluster Path [%DEFAULT_ROOT%\!CLUSTER_NAME!]%COLON% "
+        if ""=="!CLUSTER_PATH!" (
             set /p CONTINUE="Continue using the default value [y/n]%COLON% "
             if /i not "y"=="!CONTINUE!" goto end
-            set "CLUTER_PATH=%DEFAULT_ROOT%\!CLUTER_NAME!"
+            set "CLUSTER_PATH=%DEFAULT_ROOT%\!CLUSTER_NAME!"
         )
     :move_cluster_path
-        cd /d "!CLUTER_PATH!" >nul 2>&1
+        cd /d "!CLUSTER_PATH!" >nul 2>&1
         if errorlevel 1 (
             echo.
-            echo sdocker%COLON% Failed to move to !CLUTER_PATH!
+            echo sdocker%COLON% Failed to move to !CLUSTER_PATH!
             goto fail
         )
     ::Config
@@ -444,19 +444,19 @@ if "%~1"=="" (
     ::Apply
     :input_kube_apply
         if not ""=="!KUBE_APPLY!" (
-            echo - Cluster Apply File [%DEFAULT_KUBE_APPLY%]%COLON% !KUBE_APPLY!
+            echo - Cluster Apply File [!APP_NAME!\%DEFAULT_KUBE_APPLY%]%COLON% !KUBE_APPLY!
             goto begin
         )
         if not "1"=="!OPTION_INPUT!" (
-            set "KUBE_APPLY=%DEFAULT_KUBE_APPLY%"
-            echo - Cluster Apply File [%DEFAULT_KUBE_APPLY%]%COLON% !KUBE_APPLY!
+            set "KUBE_APPLY=!APP_NAME!\%DEFAULT_KUBE_APPLY%"
+            echo - Cluster Apply File [!APP_NAME!\%DEFAULT_KUBE_APPLY%]%COLON% !KUBE_APPLY!
             goto begin
         )
-        set /p KUBE_APPLY="- Cluster Apply File [%DEFAULT_KUBE_APPLY%]%COLON% "
+        set /p KUBE_APPLY="- Cluster Apply File [!APP_NAME!\%DEFAULT_KUBE_APPLY%]%COLON% "
         if ""=="!KUBE_APPLY!" (
             set /p CONTINUE="Continue using the default value [y/n]%COLON% "
             if /i not "y"=="!CONTINUE!" goto end
-            set "KUBE_APPLY=%DEFAULT_KUBE_APPY%"
+            set "KUBE_APPLY=!APP_NAME!\%DEFAULT_KUBE_APPY%"
         )
 
 :required
@@ -480,7 +480,7 @@ if "%~1"=="" (
     call :info "Build Gradle%COLON%"
     call gradlew.bat clean build --refresh-dependencies -Pver=!APP_VERSION!
     if errorlevel 1 (
-        call :error "  Failed to build gradle"
+        call :error "  Failed to build with gradle"
         goto done
     )
 
@@ -496,7 +496,7 @@ if "%~1"=="" (
     call :info "Build NPM%COLON%"
     call npm run build
     if errorlevel 1 (
-        call :error "  Failed to build npm"
+        call :error "  Failed to build with npm"
         goto done
     )
 
@@ -508,19 +508,19 @@ if "%~1"=="" (
     call :info "Compose Build Docker Image%COLON%"
     call docker compose -f !DOCKER_COMPOSE! build --no-cache
     if errorlevel 1 (
-        call :error "  Failed to build docker image"
+        call :error "  Failed to build the image"
         goto done
     )
 
 :compose_up
     if not "1"=="!OPTION_U!" (
-        call :warn "Compose Up Docker Container%COLON% skip"
+        call :warn "Compose Up Docker Image%COLON% skip"
         goto clean
     )
-    call :info "Compose Up Docker Container%COLON%"
+    call :info "Compose Up Docker Image%COLON%"
     call docker compose -f !DOCKER_COMPOSE! up -d
     if errorlevel 1 (
-        call :error "  Failed to run docker image"
+        call :error "  Failed to run the image"
         goto done
     )
     call docker compose ps -a
@@ -541,7 +541,7 @@ if "%~1"=="" (
     call :info "Push Docker Image%COLON%"
     call docker image push !TARGET_IMAGE!
     if errorlevel 1 (
-        call :error "  Failed to push image"
+        call :error "  Failed to push the image"
         goto done
     )
 
@@ -550,10 +550,58 @@ if "%~1"=="" (
         call :warn "Pull Docker Image%COLON% skip"
         goto done
     )
+    call :info "Pull Docker Image%COLON%"
+    call docker image pull !ORIGIN_IMAGE!
+    if errorlevel 1 (
+        call :error "  Failed to pull the image"
+        goto done
+    )
+
+:synchronize
+    if not "1"=="!OPTION_S!" (
+        call :warn "Synchronize Docker Image%COLON% skip"
+        goto done
+    )
     call :info "Pull Docker Image%COLON% !ORIGIN_IMAGE!"
     call docker image pull !ORIGIN_IMAGE!
     if errorlevel 1 (
-        call :error "  Failed to push image"
+        call :error "  Failed to pull the image"
+        goto done
+    )
+    call :info "Rename Docker Image%COLON%"
+    call docker image tag !ORIGIN_IMAGE! !NCR_PUBLIC_IMAGE!
+    if errorlevel 1 (
+        call :error "  Failed to rename the image"
+        goto done
+    )
+    call :info "Delete Docker Image%COLON% !ORIGIN_IMAGE!"
+    call docker image rm !ORIGIN_IMAGE!
+    if errorlevel 1 (
+        call :error "  Failed to delete the image"
+        goto done
+    )
+    call :info "Push Docker Image%COLON% !NCR_PUBLIC_IMAGE!"
+    call docker image push !NCR_PUBLIC_IMAGE!
+    if errorlevel 1 (
+        call :error "  Failed to push the image"
+        goto done
+    )
+    call :info "Delete Docker Image%COLON% !NCR_PUBLIC_IMAGE!"
+    call docker image rm !NCR_PUBLIC_IMAGE!
+    if errorlevel 1 (
+        call :error "  Failed to delete the image"
+        goto done
+    )
+
+:apply
+    if not "1"=="!OPTION_A!" (
+        call :warn "Apply Docker Image%COLON% skip"
+        goto done
+    )
+    call :info "Apply Docker Image%COLON% !NCR_PRIVATE_IMAGE!"
+    call kubectl --kubeconfig !KUBE_CONFIG! apply -f !KUBE_APPLY!
+    if errorlevel 1 (
+        call :error "  Failed to apply the image"
         goto done
     )
 
@@ -570,15 +618,15 @@ if "%~1"=="" (
 goto end
 
 :env
-    if ""=="!REGISTRY_ORIGIN!" (
+    if ""=="!ORIGIN_REGISTRY!" (
         set "ORIGIN_IMAGE=!APP_NAME!:!APP_VERSION!"
     ) else (
-        set "ORIGIN_IMAGE=!REGISTRY_ORIGIN!/!APP_NAME!:!APP_VERSION!"
+        set "ORIGIN_IMAGE=!ORIGIN_REGISTRY!/!APP_NAME!:!APP_VERSION!"
     )
-    if ""=="!REGISTRY_TARGET!" (
+    if ""=="!TARGET_REGISTRY!" (
         set "TARGET_IMAGE=!APP_NAME!:!APP_VERSION!"
     ) else (
-        set "TARGET_IMAGE=!REGISTRY_TARGET!/!APP_NAME!:!APP_VERSION!"
+        set "TARGET_IMAGE=!TARGET_REGISTRY!/!APP_NAME!:!APP_VERSION!"
     )
     if not ""=="!NCR_PUBLIC!" (
         set "NCR_PUBLIC_IMAGE=!NCR_PUBLIC!/!APP_NAME!:!APP_VERSION!"
@@ -595,10 +643,10 @@ goto end
     call :info "    Compose%COLON% !DOCKER_COMPOSE!"
     call :info "  Registry%COLON%"
     call :info "    Origin%COLON%"
-    call :info "      Endpoint%COLON% !REGISTRY_ORIGIN!"
+    call :info "      Endpoint%COLON% !ORIGIN_REGISTRY!"
     call :info "      Image%COLON% !ORIGIN_IMAGE!"
     call :info "    Target%COLON%"
-    call :info "      Endpoint%COLON% !REGISTRY_TARGET!"
+    call :info "      Endpoint%COLON% !TARGET_REGISTRY!"
     call :info "      Image%COLON% !TARGET_IMAGE!"
     call :info "    NCR%COLON%"
     call :info "      Public%COLON%"
@@ -668,7 +716,7 @@ goto end
     exit /b
 
 :symbols
-    set "COLON=^:"
+    set "COLON=:"
     set "AMPERSAND=^&"
     set "LT=^<"
     set "GT=^>"
@@ -686,8 +734,8 @@ goto end
     echo                     gradle
     echo                     npm
     echo   -ap [path]      Application Path (DEFAULT%COLON% %SKY%%DEFAULT_ROOT%%NOCOLOR%\[Application Name])
-    echo   -do [endpoint]  Origin Registry Endpoint (DEFAULT%COLON% %SKY%%DEFAULT_REGISTRY_ORIGIN%%NOCOLOR%)
-    echo   -dt [endpoint]  Target Registry Endpoint (DEFAULT%COLON% %SKY%%DEFAULT_REGISTRY_TARGET%%NOCOLOR%)
+    echo   -do [endpoint]  Origin Registry Endpoint (DEFAULT%COLON% %SKY%%DEFAULT_ORIGIN_REGISTRY%%NOCOLOR%)
+    echo   -dt [endpoint]  Target Registry Endpoint (DEFAULT%COLON% %SKY%%DEFAULT_TARGET_REGISTRY%%NOCOLOR%)
     echo   -dc [file]      Docker Compose File (DEFAULT%COLON% %SKY%%DEFAULT_DOCKER_COMPOSE%%NOCOLOR%)
     echo   -np [name]      NCloud Public Conatiner Registry Name
     echo                   End Point Suffix%COLON% [Public Registry Name].%SKY%.kr.ncr.ntruss.com%NOCOLOR%
@@ -772,19 +820,19 @@ goto end
     echo         -av 1.0.0 %CARET%
     echo         -ab gradle %CARET%
     echo         -ap %DEFAULT_ROOT%\app-name %CARET%
-    echo         -dt %DEFAULT_REGISTRY_TARGET% %CARET%
+    echo         -dt %DEFAULT_TARGET_REGISTRY% %CARET%
     echo         -dc %DEFAULT_DOCKER_COMPOSE%
     echo   -GBP%COLON% sdocker -GBP %CARET%
     echo         -an app-name %CARET%
     echo         -av 1.0.0 %CARET%
     echo         -ab gradle %CARET%
     echo         -ap %DEFAULT_ROOT%\app-name %CARET%
-    echo         -dt %DEFAULT_REGISTRY_TARGET% %CARET%
+    echo         -dt %DEFAULT_TARGET_REGISTRY% %CARET%
     echo         -dc %DEFAULT_DOCKER_COMPOSE%
     echo   -SA%COLON% sdocker -SA %CARET%
     echo         -an app-name %CARET%
     echo         -av 1.0.0 %CARET%
-    echo         -do %DEFAULT_REGISTRY_ORIGIN% %CARET%
+    echo         -do %DEFAULT_ORIGIN_REGISTRY% %CARET%
     echo         -np ncr-public-name.%DEFAULT_NCR_PUBLIC_SUFFIX% %CARET%
     echo         -ns ncr-private-name.%DEFAULT_NCR_PRIVATE_SUFFIX% %CARET%
     echo         -kn cluster-name %CARET%
