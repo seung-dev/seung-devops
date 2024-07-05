@@ -23,6 +23,7 @@ set "DEFAULT_KUBE_APPLY=kubeapply.yaml"
 set "DEFAULT_CHARSET=65001"
 
 ::Options
+set "OPTION_H=0"
 set "OPTION_B=0"
 set "OPTION_D=0"
 set "OPTION_U=0"
@@ -34,8 +35,6 @@ set "OPTION_A=0"
 ::Process
 set "EXIT_CODE="
 
-call :color
-
 if "%~1"=="" (
     goto try
 )
@@ -45,7 +44,8 @@ if "%~1"=="" (
     set "ARG2=%~2"
     if "!ARG1!"=="" goto valid
     if "-h"=="!ARG1!" (
-        goto usage
+		set "OPTION_H=1"
+        goto init
     )
     if "-i"=="!ARG1!" (
         set "OPTION_INPUT=1"
@@ -229,6 +229,7 @@ if "%~1"=="" (
     goto try
 
 :init
+    call :color
     if ""=="!CHARSET!" (
         set "CHARSET=%DEFAULT_CHARSET%"
     )
@@ -237,6 +238,7 @@ if "%~1"=="" (
         echo sdocker: Invalid code page
         goto try
     )
+    if "1"=="!OPTION_H!" goto usage
 
 ::Application
 :input_app
@@ -569,14 +571,24 @@ if "%~1"=="" (
 goto end
 
 :env
-    set "ORIGIN_IMAGE=!ORIGIN_REGISTRY!/!APP_NAME!:!APP_VERSION!"
-    if ""=="!ORIGIN_REGISTRY!" set "ORIGIN_IMAGE=!APP_NAME!:!APP_VERSION!"
-    set "TARGET_IMAGE=!TARGET_REGISTRY!/!APP_NAME!:!APP_VERSION!"
-    if ""=="!TARGET_REGISTRY!" set "TARGET_IMAGE=!APP_NAME!:!APP_VERSION!"
-    if not ""=="!NCR_PUBLIC_NAME!" set "NCR_PUBLIC=!NCR_PUBLIC_NAME!.%DEFAULT_NCR_PUBLIC_SUFFIX%"
-    if not ""=="!NCR_PUBLIC!" set "NCR_PUBLIC_IMAGE=!NCR_PUBLIC!/!APP_NAME!:!APP_VERSION!"
-    if not ""=="!NCR_PRIVATE_NAME!" set "NCR_PRIVATE=!NCR_PRIVATE_NAME!.%DEFAULT_NCR_PRIVATE_SUFFIX%"
-    if not ""=="!NCR_PRIVATE!" set "NCR_PRIVATE_IMAGE=!NCR_PRIVATE!/!APP_NAME!:!APP_VERSION!"
+    if ""=="!ORIGIN_REGISTRY!" (
+        set "ORIGIN_IMAGE=!APP_NAME!:!APP_VERSION!"
+    ) else (
+        set "ORIGIN_IMAGE=!ORIGIN_REGISTRY!/!APP_NAME!:!APP_VERSION!"
+    )
+    if ""=="!TARGET_REGISTRY!" (
+        set "TARGET_IMAGE=!APP_NAME!:!APP_VERSION!"
+    ) else (
+        set "TARGET_IMAGE=!TARGET_REGISTRY!/!APP_NAME!:!APP_VERSION!"
+    )
+    if not ""=="!NCR_PUBLIC_NAME!" (
+        set "NCR_PUBLIC=!NCR_PUBLIC_NAME!.%DEFAULT_NCR_PUBLIC_SUFFIX%"
+        set "NCR_PUBLIC_IMAGE=!NCR_PUBLIC!/!APP_NAME!:!APP_VERSION!"
+    )
+    if not ""=="!NCR_PRIVATE_NAME!" (
+        set "NCR_PRIVATE=!NCR_PRIVATE_NAME!.%DEFAULT_NCR_PRIVATE_SUFFIX%"
+        set "NCR_PRIVATE_IMAGE=!NCR_PRIVATE!/!APP_NAME!:!APP_VERSION!"
+    )
     call :info "Input:"
     call :info "  Application:"
     call :info "    Name: !APP_NAME!"
