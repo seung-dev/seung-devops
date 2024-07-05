@@ -14,10 +14,10 @@ setlocal enabledelayedexpansion
 ::Defaults
 set "DEFAULT_ROOT=W:\seung-git"
 set "DEFAULT_DOCKER_COMPOSE=docker-compose.yaml"
-set "DEFAULT_ORIGIN_REGISTRY=docker.io"
-set "DEFAULT_TARGET_REGISTRY=127.0.0.1:18579"
-set "DEFAULT_NCR_PUBLIC_SUFFIX=ncr.ntruss.com"
-set "DEFAULT_NCR_PRIVATE_SUFFIX=private-ncr.ntruss.com"
+set "DEFAULT_REGISTRY_ORIGIN=docker.io"
+set "DEFAULT_REGISTRY_TARGET=127.0.0.1:18579"
+set "DEFAULT_NCR_PUBLIC=public.kr.ncr.ntruss.com"
+set "DEFAULT_NCR_PRIVATE=private.kr.private-ncr.ntruss.com"
 set "DEFAULT_KUBE_CONFIG=kubeconfig.yaml"
 set "DEFAULT_KUBE_APPLY=kubeapply.yaml"
 set "DEFAULT_CHARSET=65001"
@@ -94,7 +94,7 @@ if "%~1"=="" (
     )
     if "-do"=="!ARG1!" (
         if not "-"=="!ARG2:~0,1!" (
-            set "ORIGIN_REGISTRY=!ARG2!"
+            set "REGISTRY_ORIGIN=!ARG2!"
             shift
         )
         shift
@@ -102,7 +102,7 @@ if "%~1"=="" (
     )
     if "-dt"=="!ARG1!" (
         if not "-"=="!ARG2:~0,1!" (
-            set "TARGET_REGISTRY=!ARG2!"
+            set "REGISTRY_TARGET=!ARG2!"
             shift
         )
         shift
@@ -110,7 +110,7 @@ if "%~1"=="" (
     )
     if "-np"=="!ARG1!" (
         if not "-"=="!ARG2:~0,1!" (
-            set "NCR_PUBLIC_NAME=!ARG2!"
+            set "NCR_PUBLIC=!ARG2!"
             shift
         )
         shift
@@ -118,7 +118,7 @@ if "%~1"=="" (
     )
     if "-ns"=="!ARG1!" (
         if not "-"=="!ARG2:~0,1!" (
-            set "NCR_PRIVATE_NAME=!ARG2!"
+            set "NCR_PRIVATE=!ARG2!"
             shift
         )
         shift
@@ -319,57 +319,75 @@ if "%~1"=="" (
     ::Origin Registry
     :input_origin
         if not "1"=="!OPTION_L!" goto input_target
-        if not ""=="!ORIGIN_REGISTRY!" (
-            echo - Origin Registry Endpoint [%DEFAULT_ORIGIN_REGISTRY%]%COLON% !ORIGIN_REGISTRY!
+        if not ""=="!REGISTRY_ORIGIN!" (
+            echo - Origin Registry Endpoint [%DEFAULT_REGISTRY_ORIGIN%]%COLON% !REGISTRY_ORIGIN!
             goto input_target
         )
         if not "1"=="!OPTION_INPUT!" (
-            set "ORIGIN_REGISTRY=%DEFAULT_ORIGIN_REGISTRY%"
-            echo - Origin Registry Endpoint [%DEFAULT_ORIGIN_REGISTRY%]%COLON% !ORIGIN_REGISTRY!
+            set "REGISTRY_ORIGIN=%DEFAULT_REGISTRY_ORIGIN%"
+            echo - Origin Registry Endpoint [%DEFAULT_REGISTRY_ORIGIN%]%COLON% !REGISTRY_ORIGIN!
             goto input_target
         )
-        set /p ORIGIN_REGISTRY="- Origin Registry Endpoint [%DEFAULT_ORIGIN_REGISTRY%]%COLON% "
-        if ""=="!ORIGIN_REGISTRY!" (
+        set /p REGISTRY_ORIGIN="- Origin Registry Endpoint [%DEFAULT_REGISTRY_ORIGIN%]%COLON% "
+        if ""=="!REGISTRY_ORIGIN!" (
             set /p CONTINUE="Continue using the default value [y/n]%COLON% "
             if /i not "y"=="!CONTINUE!" goto end
-            set "ORIGIN_REGISTRY=%DEFAULT_ORIGIN_REGISTRY%"
+            set "REGISTRY_ORIGIN=%DEFAULT_REGISTRY_ORIGIN%"
         )
     ::Target Registry
     :input_target
         if not "1"=="!OPTION_D!" if not "1"=="!OPTION_U!" if not "1"=="!OPTION_P!" goto input_ncr_public
-        if not ""=="!TARGET_REGISTRY!" (
-            echo - Target Registry Endpoint [%DEFAULT_TARGET_REGISTRY%]%COLON% !TARGET_REGISTRY!
+        if not ""=="!REGISTRY_TARGET!" (
+            echo - Target Registry Endpoint [%DEFAULT_REGISTRY_TARGET%]%COLON% !REGISTRY_TARGET!
             goto input_ncr_public
         )
         if not "1"=="!OPTION_INPUT!" (
-            set "TARGET_REGISTRY=%DEFAULT_TARGET_REGISTRY%"
-            echo - Target Registry Endpoint [%DEFAULT_TARGET_REGISTRY%]%COLON% !TARGET_REGISTRY!
+            set "REGISTRY_TARGET=%DEFAULT_REGISTRY_TARGET%"
+            echo - Target Registry Endpoint [%DEFAULT_REGISTRY_TARGET%]%COLON% !REGISTRY_TARGET!
             goto input_ncr_public
         )
-        set /p TARGET_REGISTRY="- Target Registry Endpoint [%DEFAULT_TARGET_REGISTRY%]%COLON% "
-        if ""=="!TARGET_REGISTRY!" (
+        set /p REGISTRY_TARGET="- Target Registry Endpoint [%DEFAULT_REGISTRY_TARGET%]%COLON% "
+        if ""=="!REGISTRY_TARGET!" (
             set /p CONTINUE="Continue using the default value [y/n]%COLON% "
             if /i not "y"=="!CONTINUE!" goto end
-            set "TARGET_REGISTRY=%DEFAULT_TARGET_REGISTRY%"
+            set "REGISTRY_TARGET=%DEFAULT_REGISTRY_TARGET%"
         )
     ::NCR Public
     :input_ncr_public
         if not "1"=="!OPTION_S!" goto input_ncr_private
-        if not ""=="!NCR_PUBLIC_NAME!" (
-            echo - NCR Public Name []%COLON% !NCR_PUBLIC_NAME!
+        if not ""=="!NCR_PUBLIC!" (
+            echo - NCR Public Name [%DEFAULT_NCR_PUBLIC%]%COLON% !NCR_PUBLIC!
             goto input_ncr_private
         )
-        set /p NCR_PUBLIC_NAME="- NCR Public Name []%COLON% "
-        if ""=="!NCR_PUBLIC_NAME!" goto required
+        if not "1"=="!OPTION_INPUT!" (
+            set "NCR_PUBLIC=%DEFAULT_NCR_PUBLIC%"
+            echo - NCR Public Name [%DEFAULT_NCR_PUBLIC%]%COLON% !NCR_PUBLIC!
+            goto input_ncr_private
+        )
+        set /p NCR_PUBLIC="- NCR Public Name [%DEFAULT_NCR_PUBLIC%]%COLON% "
+        if ""=="!NCR_PUBLIC!" (
+            set /p CONTINUE="Continue using the default value [y/n]%COLON% "
+            if /i not "y"=="!CONTINUE!" goto end
+            set "NCR_PUBLIC=%DEFAULT_NCR_PUBLIC%"
+        )
     ::NCR Private
     :input_ncr_private
         if not "1"=="!OPTION_A!" goto input_kubernetes
-        if not ""=="!NCR_PRIVATE_NAME!" (
-            echo - NCR Private Name []%COLON% !NCR_PRIVATE_NAME!
+        if not ""=="!NCR_PRIVATE!" (
+            echo - NCR Private Name [%DEFAULT_NCR_PRIVATE%]%COLON% !NCR_PRIVATE!
             goto input_kubernetes
         )
-        set /p NCR_PRIVATE_NAME="- NCR Private Name []%COLON% "
-        if ""=="!NCR_PRIVATE_NAME!" goto required
+        if not "1"=="!OPTION_INPUT!" (
+            set "NCR_PRIVATE=%DEFAULT_NCR_PRIVATE%"
+            echo - NCR Public Name [%DEFAULT_NCR_PRIVATE%]%COLON% !NCR_PRIVATE!
+            goto input_kubernetes
+        )
+        set /p NCR_PRIVATE="- NCR Private Name []%COLON% "
+        if ""=="!NCR_PRIVATE!" (
+            set /p CONTINUE="Continue using the default value [y/n]%COLON% "
+            if /i not "y"=="!CONTINUE!" goto end
+            set "NCR_PRIVATE=%DEFAULT_NCR_PRIVATE%"
+        )
 
 ::Kubernetes
 :input_kubernetes
@@ -552,22 +570,20 @@ if "%~1"=="" (
 goto end
 
 :env
-    if ""=="!ORIGIN_REGISTRY!" (
+    if ""=="!REGISTRY_ORIGIN!" (
         set "ORIGIN_IMAGE=!APP_NAME!:!APP_VERSION!"
     ) else (
-        set "ORIGIN_IMAGE=!ORIGIN_REGISTRY!/!APP_NAME!:!APP_VERSION!"
+        set "ORIGIN_IMAGE=!REGISTRY_ORIGIN!/!APP_NAME!:!APP_VERSION!"
     )
-    if ""=="!TARGET_REGISTRY!" (
+    if ""=="!REGISTRY_TARGET!" (
         set "TARGET_IMAGE=!APP_NAME!:!APP_VERSION!"
     ) else (
-        set "TARGET_IMAGE=!TARGET_REGISTRY!/!APP_NAME!:!APP_VERSION!"
+        set "TARGET_IMAGE=!REGISTRY_TARGET!/!APP_NAME!:!APP_VERSION!"
     )
-    if not ""=="!NCR_PUBLIC_NAME!" (
-        set "NCR_PUBLIC=!NCR_PUBLIC_NAME!.%DEFAULT_NCR_PUBLIC_SUFFIX%"
+    if not ""=="!NCR_PUBLIC!" (
         set "NCR_PUBLIC_IMAGE=!NCR_PUBLIC!/!APP_NAME!:!APP_VERSION!"
     )
-    if not ""=="!NCR_PRIVATE_NAME!" (
-        set "NCR_PRIVATE=!NCR_PRIVATE_NAME!.%DEFAULT_NCR_PRIVATE_SUFFIX%"
+    if not ""=="!NCR_PRIVATE!" (
         set "NCR_PRIVATE_IMAGE=!NCR_PRIVATE!/!APP_NAME!:!APP_VERSION!"
     )
     call :info "Input%COLON%"
@@ -577,24 +593,22 @@ goto end
     call :info "    Build%COLON% !APP_Build!"
     call :info "    Path%COLON% !APP_PATH!"
     call :info "    Compose%COLON% !DOCKER_COMPOSE!"
-    call :info "  Registry"
-    call :info "    Origin"
-    call :info "      Endpoint%COLON% !ORIGIN_REGISTRY!"
+    call :info "  Registry%COLON%"
+    call :info "    Origin%COLON%"
+    call :info "      Endpoint%COLON% !REGISTRY_ORIGIN!"
     call :info "      Image%COLON% !ORIGIN_IMAGE!"
-    call :info "    Target"
-    call :info "      Endpoint%COLON% !TARGET_REGISTRY!"
+    call :info "    Target%COLON%"
+    call :info "      Endpoint%COLON% !REGISTRY_TARGET!"
     call :info "      Image%COLON% !TARGET_IMAGE!"
-    call :info "    NCR"
-    call :info "      Public"
-    call :info "        Name%COLON% !NCR_PUBLIC_NAME!"
+    call :info "    NCR%COLON%"
+    call :info "      Public%COLON%"
     call :info "        Endpoint%COLON% !NCR_PUBLIC!"
     call :info "        Image%COLON% !NCR_PUBLIC_IMAGE!"
-    call :info "      Private"
-    call :info "        Name%COLON% !NCR_PRIVATE_NAME!"
+    call :info "      Private%COLON%"
     call :info "        Endpoint%COLON% !NCR_PRIVATE!"
     call :info "        Image%COLON% !NCR_PRIVATE_IMAGE!"
-    call :info "  Kubernetes"
-    call :info "    Cluster"
+    call :info "  Kubernetes%COLON%"
+    call :info "    Cluster%COLON%"
     call :info "      Name%COLON% !CLUSTER_NAME!"
     call :info "      Path%COLON% !CLUSTER_PATH!"
     call :info "      Config%COLON% !KUBE_CONFIG!"
@@ -672,13 +686,13 @@ goto end
     echo                     gradle
     echo                     npm
     echo   -ap [path]      Application Path (DEFAULT%COLON% %SKY%%DEFAULT_ROOT%%NOCOLOR%\[Application Name])
-    echo   -do [endpoint]  Origin Registry Endpoint (DEFAULT%COLON% %SKY%%DEFAULT_ORIGIN_REGISTRY%%NOCOLOR%)
-    echo   -dt [endpoint]  Target Registry Endpoint (DEFAULT%COLON% %SKY%%DEFAULT_TARGET_REGISTRY%%NOCOLOR%)
+    echo   -do [endpoint]  Origin Registry Endpoint (DEFAULT%COLON% %SKY%%DEFAULT_REGISTRY_ORIGIN%%NOCOLOR%)
+    echo   -dt [endpoint]  Target Registry Endpoint (DEFAULT%COLON% %SKY%%DEFAULT_REGISTRY_TARGET%%NOCOLOR%)
     echo   -dc [file]      Docker Compose File (DEFAULT%COLON% %SKY%%DEFAULT_DOCKER_COMPOSE%%NOCOLOR%)
     echo   -np [name]      NCloud Public Conatiner Registry Name
-    echo                   End Point Suffix (DEFAULT%COLON% [Public Registry Name].%SKY%%DEFAULT_NCR_PUBLIC_SUFFIX%%NOCOLOR%)
+    echo                   End Point Suffix%COLON% [Public Registry Name].%SKY%.kr.ncr.ntruss.com%NOCOLOR%
     echo   -ns [name]      NCloud Private Conatiner Registry Name
-    echo                   End Point Suffix (DEFAULT%COLON% [Private Registry Name].%SKY%%DEFAULT_NCR_PRIVATE_SUFFIX%%NOCOLOR%)
+    echo                   End Point Suffix%COLON% [Private Registry Name].%SKY%.kr.private-ncr.ntruss.com%NOCOLOR%
     echo   -kn [name]      Kubernetes Cluster Name
     echo   -kc [file]      Kubernetes Cluster Config File
     echo   -ka [file]      Kubernetes Apply File
@@ -758,19 +772,19 @@ goto end
     echo         -av 1.0.0 %CARET%
     echo         -ab gradle %CARET%
     echo         -ap %DEFAULT_ROOT%\app-name %CARET%
-    echo         -dt %DEFAULT_TARGET_REGISTRY% %CARET%
+    echo         -dt %DEFAULT_REGISTRY_TARGET% %CARET%
     echo         -dc %DEFAULT_DOCKER_COMPOSE%
     echo   -GBP%COLON% sdocker -GBP %CARET%
     echo         -an app-name %CARET%
     echo         -av 1.0.0 %CARET%
     echo         -ab gradle %CARET%
     echo         -ap %DEFAULT_ROOT%\app-name %CARET%
-    echo         -dt %DEFAULT_TARGET_REGISTRY% %CARET%
+    echo         -dt %DEFAULT_REGISTRY_TARGET% %CARET%
     echo         -dc %DEFAULT_DOCKER_COMPOSE%
     echo   -SA%COLON% sdocker -SA %CARET%
     echo         -an app-name %CARET%
     echo         -av 1.0.0 %CARET%
-    echo         -do %DEFAULT_ORIGIN_REGISTRY% %CARET%
+    echo         -do %DEFAULT_REGISTRY_ORIGIN% %CARET%
     echo         -np ncr-public-name.%DEFAULT_NCR_PUBLIC_SUFFIX% %CARET%
     echo         -ns ncr-private-name.%DEFAULT_NCR_PRIVATE_SUFFIX% %CARET%
     echo         -kn cluster-name %CARET%
