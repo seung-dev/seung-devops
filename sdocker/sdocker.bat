@@ -605,6 +605,18 @@ if "%~1"=="" (
         goto done
     )
 
+:del
+    if not "1"=="!OPTION_A!" (
+        call :warn "Apply Docker Image%COLON% skip"
+        goto done
+    )
+    call :info "Apply Docker Image%COLON% !NCR_PRIVATE_IMAGE!"
+    call kubectl --kubeconfig !KUBE_CONFIG! delete -f !KUBE_APPLY!
+    if errorlevel 1 (
+        call :error "Failed to apply the image"
+        goto done
+    )
+
 :done
     call :end_at
     call :elapsed
@@ -737,11 +749,12 @@ goto end
     echo   -do [endpoint]  Origin Registry Endpoint (DEFAULT%COLON% %SKY%%DEFAULT_ORIGIN_REGISTRY%%NOCOLOR%)
     echo   -dt [endpoint]  Target Registry Endpoint (DEFAULT%COLON% %SKY%%DEFAULT_TARGET_REGISTRY%%NOCOLOR%)
     echo   -dc [file]      Docker Compose File (DEFAULT%COLON% %SKY%%DEFAULT_DOCKER_COMPOSE%%NOCOLOR%)
-    echo   -np [name]      NCloud Public Conatiner Registry Name
+    echo   -np [name]      NCloud Public Container Registry Name
     echo                   End Point Suffix%COLON% [Public Registry Name].%SKY%.kr.ncr.ntruss.com%NOCOLOR%
-    echo   -ns [name]      NCloud Private Conatiner Registry Name
+    echo   -ns [name]      NCloud Private Container Registry Name
     echo                   End Point Suffix%COLON% [Private Registry Name].%SKY%.kr.private-ncr.ntruss.com%NOCOLOR%
     echo   -kn [name]      Kubernetes Cluster Name
+    echo   -kp [path]      Kubernetes Cluster Path
     echo   -kc [file]      Kubernetes Cluster Config File
     echo   -ka [file]      Kubernetes Apply File
     echo   -wc [code]      Windows Active code page (DEFAULT%COLON% %SKY%!CHARSET!%NOCOLOR%)
@@ -802,14 +815,14 @@ goto end
     echo                     -an [Application Name]
     echo                     -av [Application Version]
     echo                     -do [Origin Registry Endpoint]
-    echo                     -np [NCloud Public Conatiner Registry Name]
+    echo                     -np [NCloud Public Container Registry Name]
     echo   -A              Apply Container
     echo                   Compatible Options%COLON%
     echo                      -SA
     echo                   Required Fields%COLON%
     echo                     -an [Application Name]
     echo                     -av [Application Version]
-    echo                     -ns [NCloud Private Conatiner Registry Name]
+    echo                     -ns [NCloud Private Container Registry Name]
     echo                     -kn [Kubernetes Cluster Name]
     echo                     -kc [Kubernetes Cluster Config File]
     echo                     -ka [Kubernetes Apply File]
