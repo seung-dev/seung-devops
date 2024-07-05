@@ -318,7 +318,7 @@ if "%~1"=="" (
     echo Registry
     ::Origin Registry
     :input_origin
-        if not "1"=="!OPTION_L!" goto input_target
+        if not "1"=="!OPTION_L!" if not "1"=="!OPTION_S!" goto input_target
         if not ""=="!ORIGIN_REGISTRY!" (
             echo - Origin Registry Endpoint [%DEFAULT_ORIGIN_REGISTRY%]%COLON% !ORIGIN_REGISTRY!
             goto input_target
@@ -480,7 +480,7 @@ if "%~1"=="" (
     call :info "Build Gradle%COLON%"
     call gradlew.bat clean build --refresh-dependencies -Pver=!APP_VERSION!
     if errorlevel 1 (
-        call :error "  Failed to build with gradle"
+        call :error "Failed to build with gradle"
         goto done
     )
 
@@ -496,7 +496,7 @@ if "%~1"=="" (
     call :info "Build NPM%COLON%"
     call npm run build
     if errorlevel 1 (
-        call :error "  Failed to build with npm"
+        call :error "Failed to build with npm"
         goto done
     )
 
@@ -508,7 +508,7 @@ if "%~1"=="" (
     call :info "Compose Build Docker Image%COLON%"
     call docker compose -f !DOCKER_COMPOSE! build --no-cache
     if errorlevel 1 (
-        call :error "  Failed to build the image"
+        call :error "Failed to build the image"
         goto done
     )
 
@@ -520,7 +520,7 @@ if "%~1"=="" (
     call :info "Compose Up Docker Image%COLON%"
     call docker compose -f !DOCKER_COMPOSE! up -d
     if errorlevel 1 (
-        call :error "  Failed to run the image"
+        call :error "Failed to run the image"
         goto done
     )
     call docker compose ps -a
@@ -541,55 +541,55 @@ if "%~1"=="" (
     call :info "Push Docker Image%COLON%"
     call docker image push !TARGET_IMAGE!
     if errorlevel 1 (
-        call :error "  Failed to push the image"
+        call :error "Failed to push the image"
         goto done
     )
 
 :pull
     if not "1"=="!OPTION_L!" (
         call :warn "Pull Docker Image%COLON% skip"
-        goto done
+        goto sync
     )
     call :info "Pull Docker Image%COLON%"
     call docker image pull !ORIGIN_IMAGE!
     if errorlevel 1 (
-        call :error "  Failed to pull the image"
+        call :error "Failed to pull the image"
         goto done
     )
 
-:synchronize
+:sync
     if not "1"=="!OPTION_S!" (
         call :warn "Synchronize Docker Image%COLON% skip"
-        goto done
+        goto apply
     )
     call :info "Pull Docker Image%COLON% !ORIGIN_IMAGE!"
     call docker image pull !ORIGIN_IMAGE!
     if errorlevel 1 (
-        call :error "  Failed to pull the image"
+        call :error "Failed to pull the image"
         goto done
     )
     call :info "Rename Docker Image%COLON%"
     call docker image tag !ORIGIN_IMAGE! !NCR_PUBLIC_IMAGE!
     if errorlevel 1 (
-        call :error "  Failed to rename the image"
+        call :error "Failed to rename the image"
         goto done
     )
     call :info "Delete Docker Image%COLON% !ORIGIN_IMAGE!"
     call docker image rm !ORIGIN_IMAGE!
     if errorlevel 1 (
-        call :error "  Failed to delete the image"
+        call :error "Failed to delete the image"
         goto done
     )
     call :info "Push Docker Image%COLON% !NCR_PUBLIC_IMAGE!"
     call docker image push !NCR_PUBLIC_IMAGE!
     if errorlevel 1 (
-        call :error "  Failed to push the image"
+        call :error "Failed to push the image"
         goto done
     )
     call :info "Delete Docker Image%COLON% !NCR_PUBLIC_IMAGE!"
     call docker image rm !NCR_PUBLIC_IMAGE!
     if errorlevel 1 (
-        call :error "  Failed to delete the image"
+        call :error "Failed to delete the image"
         goto done
     )
 
@@ -601,7 +601,7 @@ if "%~1"=="" (
     call :info "Apply Docker Image%COLON% !NCR_PRIVATE_IMAGE!"
     call kubectl --kubeconfig !KUBE_CONFIG! apply -f !KUBE_APPLY!
     if errorlevel 1 (
-        call :error "  Failed to apply the image"
+        call :error "Failed to apply the image"
         goto done
     )
 
