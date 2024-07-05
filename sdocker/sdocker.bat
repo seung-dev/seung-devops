@@ -464,48 +464,8 @@ if "%~1"=="" (
         )
 
 :begin
-    for /f "tokens=1,2 delims=.," %%a in ('powershell Get-Date -UFormat %%s') do (set "BEGIN_AT_SS=%%a" & set "BEGIN_AT_MS=1%%b")
-    if !BEGIN_AT_MS! lss 100000 set "BEGIN_AT_MS=!BEGIN_AT_MS!0"
-
-:env
-    set "ORIGIN_IMAGE=!ORIGIN_REGISTRY!/!APP_NAME!:!APP_VERSION!"
-    if ""=="!ORIGIN_REGISTRY!" set "ORIGIN_IMAGE=!APP_NAME!:!APP_VERSION!"
-    set "TARGET_IMAGE=!TARGET_REGISTRY!/!APP_NAME!:!APP_VERSION!"
-    if ""=="!TARGET_REGISTRY!" set "TARGET_IMAGE=!APP_NAME!:!APP_VERSION!"
-    if not ""=="!NCR_PUBLIC_NAME!" set "NCR_PUBLIC=!NCR_PUBLIC_NAME!.%DEFAULT_NCR_PUBLIC_SUFFIX%"
-    if not ""=="!NCR_PUBLIC!" set "NCR_PUBLIC_IMAGE=!NCR_PUBLIC!/!APP_NAME!:!APP_VERSION!"
-    if not ""=="!NCR_PRIVATE_NAME!" set "NCR_PRIVATE=!NCR_PRIVATE_NAME!.%DEFAULT_NCR_PRIVATE_SUFFIX%"
-    if not ""=="!NCR_PRIVATE!" set "NCR_PRIVATE_IMAGE=!NCR_PRIVATE!/!APP_NAME!:!APP_VERSION!"
-    call :info "Input:"
-    call :info "  Application:"
-    call :info "    Name: !APP_NAME!"
-    call :info "    Version: !APP_VERSION!"
-    call :info "    Build: !APP_Build!"
-    call :info "    Path: !APP_PATH!"
-    call :info "    Compose: !DOCKER_COMPOSE!"
-    call :info "  Registry:"
-    call :info "    Origin:"
-    call :info "      Endpoint: !ORIGIN_REGISTRY!"
-    call :info "      Image: !ORIGIN_IMAGE!"
-    call :info "    Target:"
-    call :info "      Endpoint: !TARGET_REGISTRY!"
-    call :info "      Image: !TARGET_IMAGE!"
-    call :info "    NCR:"
-    call :info "      Public:"
-    call :info "        Name: !NCR_PUBLIC_NAME!"
-    call :info "        Endpoint: !NCR_PUBLIC!"
-    call :info "        Image: !NCR_PUBLIC_IMAGE!"
-    call :info "      Private:"
-    call :info "        Name: !NCR_PRIVATE_NAME!"
-    call :info "        Endpoint: !NCR_PRIVATE!"
-    call :info "        Image: !NCR_PRIVATE_IMAGE!"
-    call :info "  Kubernetes:"
-    call :info "    Cluster:"
-    call :info "      Name: !CLUSTER_NAME!"
-    call :info "      Path: !CLUSTER_PATH!"
-    call :info "      Config: !KUBE_CONFIG!"
-    call :info "      Apply: !KUBE_APPLY!"
-    call :info "  Active code page: !CHARSET!"
+    call :begin_at
+    call :env
 
 :gradle
     if not "1"=="!OPTION_B!" (
@@ -597,17 +557,8 @@ if "%~1"=="" (
     )
 
 :done
-    for /f "tokens=1,2 delims=.," %%a in ('powershell Get-Date -UFormat %%s') do set "END_AT_SS=%%a" & set "END_AT_MS=1%%b"
-    if !END_AT_MS! lss 100000 set "END_AT_MS=!END_AT_MS!0"
-    if !BEGIN_AT_MS! gtr !END_AT_MS! set /a "END_AT_MS=!END_AT_MS!+100000" & set /a "END_AT_SS=!END_AT_SS!-1"
-    set /a "ELAPSED_SS=!END_AT_SS!-!BEGIN_AT_SS!"
-    set /a "DIFF_HH=!ELAPSED_SS!/3600"
-    if !DIFF_HH! lss 10 set "DIFF_HH=0!DIFF_HH!"
-    set /a "DIFF_MM=(!ELAPSED_SS!%%3600)/60"
-    if !DIFF_MM! lss 10 set "DIFF_MM=0!DIFF_MM!"
-    set /a "DIFF_SS=!ELAPSED_SS!%%60"
-    if !DIFF_SS! lss 10 set "DIFF_SS=0!DIFF_SS!"
-    set /a "DIFF_MS=!END_AT_MS!-!BEGIN_AT_MS!"
+    call :end_at
+    call :elapsed
     if ""=="!EXIT_CODE!" set "EXIT_CODE=!ERRORLEVEL!"
     if 0==!EXIT_CODE! (
         call :info "%GREEN%Success%NOCOLOR% in %YELLOW%!DIFF_HH!:!DIFF_MM!:!DIFF_SS!.!DIFF_MS:~0,3!%NOCOLOR%"
@@ -617,17 +568,66 @@ if "%~1"=="" (
 
 goto end
 
-:color
-    set "ESC="
-    for /f %%a in ('echo prompt $E ^| cmd') do (set "ESC=%%a")
-    set "NOCOLOR=%ESC%[0m"
-    set "RED=%ESC%[31m"
-    set "GREEN=%ESC%[32m"
-    set "YELLOW=%ESC%[33m"
-    set "BLUE=%ESC%[34m"
-    set "PURPLE=%ESC%[35m"
-    set "SKY=%ESC%[36m"
-    set "WHITE=%ESC%[37m"
+:env
+    set "ORIGIN_IMAGE=!ORIGIN_REGISTRY!/!APP_NAME!:!APP_VERSION!"
+    if ""=="!ORIGIN_REGISTRY!" set "ORIGIN_IMAGE=!APP_NAME!:!APP_VERSION!"
+    set "TARGET_IMAGE=!TARGET_REGISTRY!/!APP_NAME!:!APP_VERSION!"
+    if ""=="!TARGET_REGISTRY!" set "TARGET_IMAGE=!APP_NAME!:!APP_VERSION!"
+    if not ""=="!NCR_PUBLIC_NAME!" set "NCR_PUBLIC=!NCR_PUBLIC_NAME!.%DEFAULT_NCR_PUBLIC_SUFFIX%"
+    if not ""=="!NCR_PUBLIC!" set "NCR_PUBLIC_IMAGE=!NCR_PUBLIC!/!APP_NAME!:!APP_VERSION!"
+    if not ""=="!NCR_PRIVATE_NAME!" set "NCR_PRIVATE=!NCR_PRIVATE_NAME!.%DEFAULT_NCR_PRIVATE_SUFFIX%"
+    if not ""=="!NCR_PRIVATE!" set "NCR_PRIVATE_IMAGE=!NCR_PRIVATE!/!APP_NAME!:!APP_VERSION!"
+    call :info "Input:"
+    call :info "  Application:"
+    call :info "    Name: !APP_NAME!"
+    call :info "    Version: !APP_VERSION!"
+    call :info "    Build: !APP_Build!"
+    call :info "    Path: !APP_PATH!"
+    call :info "    Compose: !DOCKER_COMPOSE!"
+    call :info "  Registry:"
+    call :info "    Origin:"
+    call :info "      Endpoint: !ORIGIN_REGISTRY!"
+    call :info "      Image: !ORIGIN_IMAGE!"
+    call :info "    Target:"
+    call :info "      Endpoint: !TARGET_REGISTRY!"
+    call :info "      Image: !TARGET_IMAGE!"
+    call :info "    NCR:"
+    call :info "      Public:"
+    call :info "        Name: !NCR_PUBLIC_NAME!"
+    call :info "        Endpoint: !NCR_PUBLIC!"
+    call :info "        Image: !NCR_PUBLIC_IMAGE!"
+    call :info "      Private:"
+    call :info "        Name: !NCR_PRIVATE_NAME!"
+    call :info "        Endpoint: !NCR_PRIVATE!"
+    call :info "        Image: !NCR_PRIVATE_IMAGE!"
+    call :info "  Kubernetes:"
+    call :info "    Cluster:"
+    call :info "      Name: !CLUSTER_NAME!"
+    call :info "      Path: !CLUSTER_PATH!"
+    call :info "      Config: !KUBE_CONFIG!"
+    call :info "      Apply: !KUBE_APPLY!"
+    call :info "  Active code page: !CHARSET!"
+
+:begin_at
+    for /f "tokens=1,2 delims=.," %%a in ('powershell Get-Date -UFormat %%s') do (set "BEGIN_AT_SS=%%a" & set "BEGIN_AT_MS=1%%b")
+    if !BEGIN_AT_MS! lss 100000 set "BEGIN_AT_MS=!BEGIN_AT_MS!0"
+    exit /b
+
+:end_at
+    for /f "tokens=1,2 delims=.," %%a in ('powershell Get-Date -UFormat %%s') do set "END_AT_SS=%%a" & set "END_AT_MS=1%%b"
+    if !END_AT_MS! lss 100000 set "END_AT_MS=!END_AT_MS!0"
+    exit /b
+
+:elapsed
+    if !BEGIN_AT_MS! gtr !END_AT_MS! set /a "END_AT_MS=!END_AT_MS!+100000" & set /a "END_AT_SS=!END_AT_SS!-1"
+    set /a "ELAPSED_SS=!END_AT_SS!-!BEGIN_AT_SS!"
+    set /a "DIFF_HH=!ELAPSED_SS!/3600"
+    if !DIFF_HH! lss 10 set "DIFF_HH=0!DIFF_HH!"
+    set /a "DIFF_MM=(!ELAPSED_SS!%%3600)/60"
+    if !DIFF_MM! lss 10 set "DIFF_MM=0!DIFF_MM!"
+    set /a "DIFF_SS=!ELAPSED_SS!%%60"
+    if !DIFF_SS! lss 10 set "DIFF_SS=0!DIFF_SS!"
+    set /a "DIFF_MS=!END_AT_MS!-!BEGIN_AT_MS!"
     exit /b
 
 :log
@@ -645,6 +645,19 @@ goto end
 
 :error
     echo [%date% %time%] [%RED%ERROR%NOCOLOR%] %~1
+    exit /b
+
+:color
+    set "ESC="
+    for /f %%a in ('echo prompt $E ^| cmd') do (set "ESC=%%a")
+    set "NOCOLOR=%ESC%[0m"
+    set "RED=%ESC%[31m"
+    set "GREEN=%ESC%[32m"
+    set "YELLOW=%ESC%[33m"
+    set "BLUE=%ESC%[34m"
+    set "PURPLE=%ESC%[35m"
+    set "SKY=%ESC%[36m"
+    set "WHITE=%ESC%[37m"
     exit /b
 
 :usage
